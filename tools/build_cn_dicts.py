@@ -249,4 +249,18 @@ stats["default_creds_segments"] = seg_d
 stats["default_creds_total"] = len(dc)
 write_lines(os.path.join(ROOT, "default-creds", "default-creds.txt"), dc)
 
+# ---------------- 热度截取：前 100 / 前 1000 ----------------
+# 主文件段序即权重，所以直接取头部 N 行就是“按热度”的前 N 位。
+tops = {}
+for src, sub, stem, seq in (
+    ("passwords", "passwords", "passwords", pw),
+    ("usernames", "usernames", "usernames", un),
+):
+    for n in (100, 1000):
+        if len(seq) >= n:
+            out = os.path.join(ROOT, sub, "%s-top%d.txt" % (stem, n))
+            write_lines(out, seq[:n])
+            tops["%s-top%d" % (stem, n)] = n
+
+stats["top_files"] = tops
 print(json.dumps(stats, ensure_ascii=False, indent=2))
